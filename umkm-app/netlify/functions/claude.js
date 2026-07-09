@@ -3,11 +3,10 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  let prompt, maxTokens;
+  let prompt;
   try {
     const body = JSON.parse(event.body);
     prompt = body.prompt;
-    maxTokens = body.maxTokens;
   } catch (err) {
     return { statusCode: 400, body: JSON.stringify({ error: "Invalid request body" }) };
   }
@@ -17,19 +16,16 @@ exports.handler = async (event) => {
   }
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-5",
-        max_tokens: maxTokens || 1000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    );
 
     const data = await response.json();
 
@@ -37,7 +33,7 @@ exports.handler = async (event) => {
       return { statusCode: response.status, body: JSON.stringify({ error: data }) };
     }
 
-    const teks = data.content.map((c) => c.text || "").join("\n");
+    const teks = data.candidates?.[0]?.content?.parts?.map((p) => p.text || "").join("\n") || "";
     return { statusCode: 200, body: JSON.stringify({ text: teks }) };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
