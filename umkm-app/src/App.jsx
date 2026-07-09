@@ -183,7 +183,7 @@ export default function App() {
             </span>
           </div>
           <h1 className="display" style={{ fontSize: 34, fontWeight: 800, margin: 0, lineHeight: 1.1 }}>
-            Warung Bu Yuni
+            Warung Mas Erik
           </h1>
           <p style={{ margin: "6px 0 0", color: "#4A5C4A", fontSize: 15 }}>
             Catat penjualan, lihat tren, dan dapatkan penjelasan sederhana — bukan cuma angka.
